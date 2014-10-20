@@ -21,16 +21,20 @@ import java.util.ArrayList;
  * Created by User on 16.10.2014.
  */
 public class ProblemListFragment extends ListFragment {
-    ArrayList<Scenario> scenarios;
+    private ArrayList<Scenario> scenarios;
+    private DBController dbController;
     private Scenario scenario;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        dbController = new DBController(getActivity());
         getActivity().setTitle(R.string.scenarios_title);
         scenarios = new ArrayList<Scenario>();
         scenario = new Scenario();
         setupAdapter();
     }
+
 
 
     @Override
@@ -46,6 +50,12 @@ public class ProblemListFragment extends ListFragment {
         protected ArrayList<Scenario> doInBackground(Void... params) {
             ArrayList<Scenario> list = new ArrayList<Scenario>();
             Scenario item;
+//            list = dbController
+//                    .open()
+//                    .getAllScenarios();
+//            if (list != null ) {
+//                return list;
+//            }
             JSONObject jsonObject = new JSONObject();
             HttpRequest request = HttpRequest.get("http://expert-system.internal.shinyshark.com/scenarios/");
             if (request.code() == 200) {
@@ -64,6 +74,9 @@ public class ProblemListFragment extends ListFragment {
                         int caseId = c.getInt("caseId");
                         item = downloadInfo(text, id,caseId);
                         list.add(item);
+//                        dbController
+//                                .open()
+//                                .insertScenarioList(list);
                     }
                 } catch (JSONException e) {
                     Log.e(TAG, "JSON Exception: " + e);

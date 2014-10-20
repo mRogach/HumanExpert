@@ -2,7 +2,6 @@ package com.example.user.humanexpert;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -31,9 +30,9 @@ public class CaseFragment extends Fragment {
     private TextView text;
     private Button btn_1;
     private Button btn_2;
-    private Answer answer;
     private DBController dbController;
-    private ProgressDialog PD;
+
+
     public static CaseFragment newInstance(int caseId) {
         Bundle args = new Bundle();
         args.putInt("caseId", caseId);
@@ -47,6 +46,7 @@ public class CaseFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        dbController = new DBController(getActivity());
         cs = new CaseClass();
         scenario = new Scenario();
         scenario.setCaseId(getArguments().getInt("caseId"));
@@ -60,7 +60,6 @@ public class CaseFragment extends Fragment {
         text = (TextView) v.findViewById(R.id.tv_text);
         btn_1 = (Button) v.findViewById(R.id.btn_1);
         btn_2 = (Button) v.findViewById(R.id.btn_2);
-
         return v;
     }
 
@@ -88,10 +87,24 @@ public class CaseFragment extends Fragment {
             Scenario item = params[0];
             int caseId = item.getCaseId();
             CaseClass cas = new CaseClass();
+//            cas = dbController
+//                    .open()
+//                    .getCaseClass(caseId);
+            //Answers поставити в касекласс
+
+//            if (cas != null && cas.getList() != null) {
+//                return cas;
+//            }
             HttpRequest request = HttpRequest.get("http://expert-system.internal.shinyshark.com/cases/" + caseId);
             if (request.code() == 200) {
                 String response = request.body();
                 cas = mGson.fromJson(response, CaseClass.class);
+//                dbController
+//                        .open()
+//                        .insertCase(cas);
+//                for (int i = 0; i < cas.getList().size(); i++) {
+//                    dbController.insertAnswer(cas.getList().get(i));
+//                }
                 if (cas.getImageUrl() != null) {
                     bitmap = loadPicture(cas.getImageUrl());
                 }
@@ -105,23 +118,23 @@ public class CaseFragment extends Fragment {
             btn_1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                        int mess = cs.getList().get(0).getNewCaseId();
-                        final Fragment fragment = CaseFragment.newInstance(mess);
-                        FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.replace(R.id.fragmentContainer, fragment);
-                        //ft.addToBackStack("tag");
-                        ft.commit();
+                    int mess = cs.getList().get(0).getNewCaseId();
+                    final Fragment fragment = CaseFragment.newInstance(mess);
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    ft.replace(R.id.fragmentContainer, fragment);
+                    //ft.addToBackStack("tag");
+                    ft.commit();
                 }
             });
             btn_2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                        int mess = cs.getList().get(1).getNewCaseId();
-                        final Fragment fragment = CaseFragment.newInstance(mess);
-                        FragmentTransaction ft = getFragmentManager().beginTransaction();
-                        ft.replace(R.id.fragmentContainer, fragment);
-                        //ft.addToBackStack("tag");
-                        ft.commit();
+                    int mess = cs.getList().get(1).getNewCaseId();
+                    final Fragment fragment = CaseFragment.newInstance(mess);
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    ft.replace(R.id.fragmentContainer, fragment);
+                    //ft.addToBackStack("tag");
+                    ft.commit();
                 }
             });
             if (result.getList().size() == 0) {
@@ -148,33 +161,6 @@ public class CaseFragment extends Fragment {
                 e.printStackTrace();
             }
             return mIcon;
-        }
-    }
-    private class DataBaseAsync extends AsyncTask<CaseClass, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            PD = new ProgressDialog(getActivity());
-            PD.setTitle("Please Wait..");
-            PD.setMessage("Loading...");
-            PD.setCancelable(false);
-            PD.show();
-        }
-        @Override
-        protected Void doInBackground(CaseClass... params) {
-            CaseClass item = params[0];
-            dbController.open();
-            dbController.insertScen(scenario);
-            dbController.insertCase(item);
-            dbController.insertAnswer(answer);
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            dbController.close();
-            PD.dismiss();
         }
     }
 }
