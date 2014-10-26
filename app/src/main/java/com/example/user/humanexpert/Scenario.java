@@ -8,6 +8,7 @@ public class Scenario {
     private String problemTitle;
     private int caseId;
 
+
     Scenario(){}
 
     public int getId() {

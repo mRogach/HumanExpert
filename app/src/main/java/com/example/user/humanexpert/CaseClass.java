@@ -1,7 +1,5 @@
 package com.example.user.humanexpert;
 
-import java.util.ArrayList;
-
 /**
  * Created by User on 17.10.2014.
  */
@@ -9,8 +7,25 @@ public class CaseClass {
     private int id;
     private String text;
     private String imageUrl;
-    private ArrayList<Answer> list;
+//    private ArrayList<Answer> list;
+    private Answer negative;
+    private Answer positive;
 
+    public Answer getNegative() {
+        return negative;
+    }
+
+    public void setNegative(Answer negative) {
+        this.negative = negative;
+    }
+
+    public Answer getPositive() {
+        return positive;
+    }
+
+    public void setPositive(Answer positive) {
+        this.positive = positive;
+    }
 
     CaseClass(){}
 
@@ -38,11 +53,4 @@ public class CaseClass {
         this.imageUrl = imageUrl;
     }
 
-    public ArrayList<Answer> getList() {
-        return list;
-    }
-
-    public void setList(ArrayList<Answer> list) {
-        this.list = list;
-    }
 }

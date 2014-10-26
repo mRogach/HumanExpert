@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by User on 19.10.2014.
@@ -21,33 +20,7 @@ public class DBController {
     DBController(Context context){
         this.context = context;
     }
-    public long insertScen(Scenario scenario) {
-        if (!database.isOpen()) {
-            open();
-        }
-        String query = "SELECT  * FROM " + dbHelper.TABLE_SCEN + " WHERE " + dbHelper.KEY_SCEN_ID+ " = " + scenario.getId();
-        Cursor c = database.rawQuery(query, null);
-        int count = c.getCount();
-        c.close();
 
-        ContentValues values = new ContentValues();
-
-        values.put(dbHelper.KEY_SCEN_ID, scenario.getId());
-        values.put(dbHelper.KEY_SCEN_TEXT, scenario.getProblemTitle());
-        values.put(dbHelper.KEY_SCEN_CASEID, scenario.getCaseId());
-        long row_id;
-
-        if (count == 0) {
-            row_id = database.insert(dbHelper.TABLE_SCEN, null, values);
-        } else {
-            row_id = database.update(DBHelper.TABLE_SCEN,
-                    values,
-                    DBHelper.KEY_SCEN_ID  + " = ?",
-                    new String[] {String.valueOf(scenario.getId())});
-        }
-        database.close();
-        return row_id;
-    }
 
     public long insertCase(CaseClass caseClass) {
         if (!database.isOpen()) {
@@ -64,6 +37,10 @@ public class DBController {
         values.put(dbHelper.KEY_CASE_ID, caseClass.getId());
         values.put(dbHelper.KEY_CASE_TEXT, caseClass.getText());
         values.put(dbHelper.KEY_CASE_IMAGE, caseClass.getImageUrl());
+        values.put(dbHelper.KEY_CASE_ANSWER_YES_ID, caseClass.getPositive().getNewId());
+        values.put(dbHelper.KEY_CASE_ANSWER_NO_ID, caseClass.getNegative().getNewId());
+        values.put(dbHelper.KEY_CASE_ANSWER_YES_TEXT, caseClass.getPositive().getNewText());
+        values.put(dbHelper.KEY_CASE_ANSWER_NO_TEXT, caseClass.getNegative().getNewText());
         long row_id;
 
         if (count == 0) {
@@ -79,33 +56,7 @@ public class DBController {
     }
 
 
-    public long insertAnswer(Answer answer) {
-        if (!database.isOpen()) {
-            open();
-        }
-        String query = "SELECT  * FROM " + dbHelper.TABLE_ANSWER + " WHERE " + dbHelper.KEY_ANSWER_ID + " = " + answer.getNewId();
-        Cursor c = database.rawQuery(query, null);
-        int count = c.getCount();
-        c.close();
 
-        ContentValues values = new ContentValues();
-
-        values.put(dbHelper.KEY_ANSWER_ID, answer.getNewId());
-        values.put(dbHelper.KEY_ANSWER_TEXT, answer.getNewText());
-        values.put(dbHelper.KEY_ANSWER_CASEID, answer.getNewCaseId());
-        long row_id;
-
-        if (count == 0) {
-            row_id = database.insert(dbHelper.TABLE_ANSWER, null, values);
-        } else {
-            row_id = database.update(DBHelper.TABLE_ANSWER,
-                    values,
-                    DBHelper.KEY_ANSWER_ID  + " = ?",
-                    new String[] {String.valueOf(answer.getNewId())});
-        }
-        database.close();
-        return row_id;
-    }
 
     public long insertScenarioList(ArrayList<Scenario> scenarios) {
         if (!database.isOpen()) {
@@ -136,25 +87,7 @@ public class DBController {
         return row_id;
     }
 
-    public Scenario getScenario(long scen_id) {
-        if (!database.isOpen()) {
-            open();
-        }
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String selectQuery = "SELECT  * FROM " + dbHelper.TABLE_SCEN + " WHERE " + dbHelper.KEY_SCEN_ID + " = " + scen_id;
-        Log.e(dbHelper.LOG, selectQuery);
-        Cursor c = database.rawQuery(selectQuery, null);
-        if (c != null)
-            c.moveToFirst();
-        Scenario scenario = new Scenario();
-        scenario.setId(c.getInt(c.getColumnIndex(dbHelper.KEY_SCEN_ID)));
-        scenario.setProblemTitle((c.getString(c.getColumnIndex(dbHelper.KEY_SCEN_TEXT))));
-        scenario.setCaseId(c.getInt(c.getColumnIndex(dbHelper.KEY_SCEN_CASEID)));
 
-        database.close();
-
-        return scenario;
-    }
 
     public CaseClass getCaseClass(long case_id) {
         if (!database.isOpen()) {
@@ -173,30 +106,19 @@ public class DBController {
         caseClass.setId(c.getInt(c.getColumnIndex(dbHelper.KEY_CASE_ID)));
         caseClass.setText((c.getString(c.getColumnIndex(dbHelper.KEY_CASE_TEXT))));
         caseClass.setImageUrl(c.getString(c.getColumnIndex(dbHelper.KEY_CASE_IMAGE)));
+        Answer answerP = new Answer();
+        answerP.setNewId(c.getInt(c.getColumnIndex(dbHelper.KEY_CASE_ANSWER_YES_ID)));
+        caseClass.setPositive(answerP);
+        Answer answerN = new Answer();
+        answerN.setNewId(c.getInt(c.getColumnIndex(dbHelper.KEY_CASE_ANSWER_NO_ID)));
+        caseClass.setNegative(answerN);
 
         database.close();
 
         return caseClass;
     }
 
-    public Answer getAnswer(long answer_id) {
-        if (!database.isOpen()) {
-            open();
-        }
-        String selectQuery = "SELECT  * FROM " + dbHelper.TABLE_ANSWER + " WHERE " + dbHelper.KEY_ANSWER_ID + " = " + answer_id;
-        Log.e(dbHelper.LOG, selectQuery);
-        Cursor c = database.rawQuery(selectQuery, null);
-        if (c != null)
-            c.moveToFirst();
-        Answer answer = new Answer();
-        answer.setNewId(c.getInt(c.getColumnIndex(dbHelper.KEY_ANSWER_ID)));
-        answer.setNewText((c.getString(c.getColumnIndex(dbHelper.KEY_ANSWER_TEXT))));
-        answer.setNewCaseId(c.getInt(c.getColumnIndex(dbHelper.KEY_ANSWER_CASEID)));
 
-        database.close();
-
-        return answer;
-    }
 
     public ArrayList<Scenario> getAllScenarios() {
         if (!database.isOpen()) {
@@ -221,41 +143,7 @@ public class DBController {
         return scenariosList;
     }
 
-    public List<CaseClass> getAllCases() {
-        List<CaseClass> casesList = new ArrayList<CaseClass>();
-        String selectQuery = "SELECT  * FROM " + dbHelper.TABLE_CASE;
-        Log.e(dbHelper.LOG, selectQuery);
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor c = db.rawQuery(selectQuery, null);
-        if (c.moveToFirst()) {
-            do {
-                CaseClass caseClass = new CaseClass();
-                caseClass.setId(c.getInt(c.getColumnIndex(dbHelper.KEY_CASE_ID)));
-                caseClass.setText((c.getString(c.getColumnIndex(dbHelper.KEY_CASE_TEXT))));
-                caseClass.setImageUrl(c.getString(c.getColumnIndex(dbHelper.KEY_CASE_IMAGE)));
-                casesList.add(caseClass);
-            } while (c.moveToNext());
-        }
-        return casesList;
-    }
 
-    public List<Answer> getAnswers() {
-        List<Answer> answersList = new ArrayList<Answer>();
-        String selectQuery = "SELECT  * FROM " + dbHelper.TABLE_ANSWER;
-        Log.e(dbHelper.LOG, selectQuery);
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor c = db.rawQuery(selectQuery, null);
-        if (c.moveToFirst()) {
-            do {
-                Answer answer = new Answer();
-                answer.setNewId(c.getInt(c.getColumnIndex(dbHelper.KEY_ANSWER_ID)));
-                answer.setNewText((c.getString(c.getColumnIndex(dbHelper.KEY_ANSWER_TEXT))));
-                answer.setNewCaseId(c.getInt(c.getColumnIndex(dbHelper.KEY_ANSWER_CASEID)));
-                answersList.add(answer);
-            } while (c.moveToNext());
-        }
-        return answersList;
-    }
     public DBController open() throws SQLException {
         dbHelper = new DBHelper(context);
         database = dbHelper.getWritableDatabase();

@@ -31,6 +31,7 @@ public class CaseFragment extends Fragment {
     private Button btn_1;
     private Button btn_2;
     private DBController dbController;
+    public static boolean lastQuestion = false;
 
 
     public static CaseFragment newInstance(int caseId) {
@@ -86,25 +87,21 @@ public class CaseFragment extends Fragment {
         protected CaseClass doInBackground(Scenario... params) {
             Scenario item = params[0];
             int caseId = item.getCaseId();
-            CaseClass cas = new CaseClass();
-//            cas = dbController
-//                    .open()
-//                    .getCaseClass(caseId);
-            //Answers поставити в касекласс
+            CaseClass cas;
+            cas = dbController
+                    .open()
+                    .getCaseClass(caseId);
 
-//            if (cas != null && cas.getList() != null) {
-//                return cas;
-//            }
+            if (cas != null ) {
+                return cas;
+            }
             HttpRequest request = HttpRequest.get("http://expert-system.internal.shinyshark.com/cases/" + caseId);
             if (request.code() == 200) {
                 String response = request.body();
                 cas = mGson.fromJson(response, CaseClass.class);
-//                dbController
-//                        .open()
-//                        .insertCase(cas);
-//                for (int i = 0; i < cas.getList().size(); i++) {
-//                    dbController.insertAnswer(cas.getList().get(i));
-//                }
+                dbController
+                        .open()
+                        .insertCase(cas);
                 if (cas.getImageUrl() != null) {
                     bitmap = loadPicture(cas.getImageUrl());
                 }
@@ -118,7 +115,7 @@ public class CaseFragment extends Fragment {
             btn_1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int mess = cs.getList().get(0).getNewCaseId();
+                    int mess = cs.getPositive().getNewCaseId();
                     final Fragment fragment = CaseFragment.newInstance(mess);
                     FragmentTransaction ft = getFragmentManager().beginTransaction();
                     ft.replace(R.id.fragmentContainer, fragment);
@@ -129,7 +126,7 @@ public class CaseFragment extends Fragment {
             btn_2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int mess = cs.getList().get(1).getNewCaseId();
+                    int mess = cs.getNegative().getNewCaseId();
                     final Fragment fragment = CaseFragment.newInstance(mess);
                     FragmentTransaction ft = getFragmentManager().beginTransaction();
                     ft.replace(R.id.fragmentContainer, fragment);
@@ -137,12 +134,13 @@ public class CaseFragment extends Fragment {
                     ft.commit();
                 }
             });
-            if (result.getList().size() == 0) {
+            if (result.getNegative() == null) {
                 btn_1.setVisibility(View.GONE);
                 btn_2.setVisibility(View.GONE);
+                lastQuestion = true;
             } else {
-                btn_1.setText(result.getList().get(0).getNewText());
-                btn_2.setText(result.getList().get(1).getNewText());
+                btn_1.setText(result.getPositive().getNewText());
+                btn_2.setText(result.getNegative().getNewText());
             }
             text.setText(result.getText());
             if (bitmap != null) {

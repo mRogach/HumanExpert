@@ -24,6 +24,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_CASE_ID = "id";
     public static final String KEY_CASE_TEXT = "text";
     public static final String KEY_CASE_IMAGE = "image";
+    public static final String KEY_CASE_ANSWER_NO_ID = "answer_no_id";
+    public static final String KEY_CASE_ANSWER_YES_ID = "answer_yes_id";
+    public static final String KEY_CASE_ANSWER_YES_TEXT = "answer_yes_text";
+    public static final String KEY_CASE_ANSWER_NO_TEXT= "answer_no_text";
+
 
     public static final String KEY_ANSWER_ID = "id";
     public static final String KEY_ANSWER_TEXT = "text";
@@ -35,7 +40,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static final String CREATE_TABLE_CASE = "CREATE TABLE " + TABLE_CASE
             + "(" + KEY_CASE_ID + " INTEGER PRIMARY KEY," + KEY_CASE_TEXT + " TEXT,"
-            + KEY_CASE_IMAGE + " TEXT " + ");";
+            + KEY_CASE_IMAGE + " TEXT " + KEY_CASE_ANSWER_NO_ID + " INTEGER," + KEY_CASE_ANSWER_YES_ID + " INTEGER," + KEY_CASE_ANSWER_YES_TEXT + " TEXT, " + KEY_CASE_ANSWER_NO_TEXT + " TEXT " + ");";
 
     private static final String CREATE_TABLE_ANSWER = "CREATE TABLE "
             + TABLE_ANSWER + "(" + KEY_ANSWER_ID + " INTEGER PRIMARY KEY,"

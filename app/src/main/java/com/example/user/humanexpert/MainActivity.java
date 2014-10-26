@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
             final Fragment fragment = new ProblemListFragment();
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.replace(R.id.fragmentContainer, fragment);
+            //ft.addToBackStack("tag");
             ft.commitAllowingStateLoss();
         }else {
             //LANDSCAPE;
@@ -39,6 +40,16 @@ public class MainActivity extends Activity {
             ft.commitAllowingStateLoss();
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        if(CaseFragment.lastQuestion){
+
+            onCreate(null);
+        }
+        else{super.onBackPressed();}
+    }
+
     @Override
     protected void onStart() {
         super.onStart();

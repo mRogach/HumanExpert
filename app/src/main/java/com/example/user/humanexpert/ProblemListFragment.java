@@ -48,14 +48,14 @@ public class ProblemListFragment extends ListFragment {
 
         @Override
         protected ArrayList<Scenario> doInBackground(Void... params) {
-            ArrayList<Scenario> list = new ArrayList<Scenario>();
+            ArrayList<Scenario> list;
             Scenario item;
-//            list = dbController
-//                    .open()
-//                    .getAllScenarios();
-//            if (list != null ) {
-//                return list;
-//            }
+            list = dbController
+                    .open()
+                    .getAllScenarios();
+            if (list != null ) {
+                return list;
+            }
             JSONObject jsonObject = new JSONObject();
             HttpRequest request = HttpRequest.get("http://expert-system.internal.shinyshark.com/scenarios/");
             if (request.code() == 200) {
@@ -74,9 +74,9 @@ public class ProblemListFragment extends ListFragment {
                         int caseId = c.getInt("caseId");
                         item = downloadInfo(text, id,caseId);
                         list.add(item);
-//                        dbController
-//                                .open()
-//                                .insertScenarioList(list);
+                        dbController
+                                .open()
+                                .insertScenarioList(list);
                     }
                 } catch (JSONException e) {
                     Log.e(TAG, "JSON Exception: " + e);
